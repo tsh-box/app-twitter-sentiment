@@ -15,7 +15,7 @@ const credentials = databox.getHttpsCredentials();
 const DATABOX_ZMQ_ENDPOINT = process.env.DATABOX_ZMQ_ENDPOINT
 
 //connect to my store to write data
-sentimentStore = databox.NewTimeSeriesClient(DATABOX_ZMQ_ENDPOINT, false);
+sentimentStore = databox.NewTimeSeriesBlobClient(DATABOX_ZMQ_ENDPOINT, false);
 
 //The endpoint for the data sources requested in the manifest ( env var name derived from the id in the manifest)
 let twitterUserTimeLine = {};
@@ -38,7 +38,7 @@ databox.HypercatToSourceDataMetadata(process.env.DATASOURCE_DS_twitterHashTagStr
     twitterHashTagStream = data
 
     //connect to the store I'm reading data from
-    twitterStore = databox.NewTimeSeriesClient(twitterHashTagStream.DataSourceURL, false)
+    twitterStore = databox.NewTimeSeriesBlobClient(twitterHashTagStream.DataSourceURL, false)
 });
 
 
@@ -109,7 +109,7 @@ Promise.resolve()
         .then((emitter)=>{
 
             emitter.on('data',(data)=>{
-                let tweet = JSON.parse(data);
+                let tweet = JSON.parse(data.data);
                 latestTweet = { tweet:tweet.text, sentiment:sentiment(tweet.text) };
                 sentimentData = { location: tweet.user.location, sentiment: sentiment(tweet.text) };
                 databox.export.longpoll('https://export.amar.io/', sentimentData)
@@ -133,7 +133,7 @@ Promise.resolve()
         .then((emitter)=>{
 
             emitter.on('data',(data)=>{
-                let tweet = JSON.parse(data);
+                let tweet = JSON.parse(data.data);
                 latestTweet = { tweet:tweet.text, sentiment:sentiment(tweet.text) };
                 sentimentData = { location: tweet.user.location, sentiment: sentiment(tweet.text) };
                 databox.export.longpoll('https://export.amar.io/', sentimentData)
